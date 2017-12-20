@@ -19,7 +19,6 @@ def get_twitter_api(heroku_config):
     
 def human_date(datetime):
   """Takes a datetime; returns a short, human-readable string, e.g. "Dec 18, 2017" """
-  print( datetime)
   long_month_name = calendar.month_name[datetime.month]
   short_month_name = long_month_name[0:3]
   date_format_dict = {
