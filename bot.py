@@ -12,7 +12,7 @@ import tweepy
 HEROKU_KEY = sys.argv[1]
 HEROKU_APP_NAME = sys.argv[2]
 DATE_FORMAT = 'At {hour}:{minute:02} on {short_month} {day}, {year}'
-MAX_TWEET_LEN = 140
+MAX_TWEET_LEN = 280
 
 def get_twitter_api(heroku_config):
   auth = tweepy.OAuthHandler(heroku_config['CONSUMER_KEY'], heroku_config['CONSUMER_SECRET'])
