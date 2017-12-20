@@ -12,6 +12,7 @@ import tweepy
 HEROKU_KEY = sys.argv[1]
 HEROKU_APP_NAME = sys.argv[2]
 DATE_FORMAT = 'At {hour}:{minute:02} on {short_month} {day}, {year}'
+MAX_TWEET_LEN = 140
 
 def get_twitter_api(heroku_config):
   auth = tweepy.OAuthHandler(heroku_config['CONSUMER_KEY'], heroku_config['CONSUMER_SECRET'])
@@ -55,6 +56,8 @@ def check_off(their_tweet):
   heroku_config['LAST_PROCESSED_TWEET_ID'] = their_tweet.id 
 
 def send_my_tweet(twitter_api, my_tweet_text):
+  if len(my_tweet_text) > MAX_TWEET_LEN:
+    my_tweet_text = my_tweet_text[:MAX_TWEET_LEN]
   twitter_api.update_status(my_tweet_text) 
 
 def repeat_tweets_in_case_of_later_deletion(twitter_api, original_tweeter, since_tweet_id, timezone):
