@@ -86,9 +86,11 @@ def capture_tweets_for_posterity():
   for their_tweet in their_tweets:
     their_tweet = TWITTER.get_status(their_tweet.id, tweet_mode='extended')
     my_tweet_text, local_screenshot = build_my_tweet(their_tweet)
-    check_off(their_tweet)
-    send_my_tweet(my_tweet_text, local_screenshot)
-    os.remove(local_screenshot)
+    try:
+      send_my_tweet(my_tweet_text, local_screenshot)
+      check_off(their_tweet)
+    finally:
+      os.remove(local_screenshot)
 
 if __name__ == '__main__':
   HEROKU_CONN = heroku3.from_key(HEROKU_KEY)
