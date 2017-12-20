@@ -22,7 +22,7 @@ def get_timezone(heroku_config):
   return pytz.timezone(heroku_config['USE_TIMEZONE'])
 
 def human_date(datetime):
-  """Takes a datetime; returns a short, human-readable string, e.g. At "11:36 on Dec 18, 2017" """
+  """Takes a datetime; returns a short, human-readable string, e.g. "At 11:36 on Dec 18, 2017" """
   long_month_name = calendar.month_name[datetime.month]
   short_month_name = long_month_name[0:3]
   date_format_dict = {
@@ -54,9 +54,8 @@ def check_off(their_tweet):
   # Update Heroku config var to record that this tweet has been processed
   heroku_config['LAST_PROCESSED_TWEET_ID'] = their_tweet.id 
 
-def send_my_tweet(my_tweet_text):
-  # TODO: send via Tweepy API
-  print(my_tweet_text)  
+def send_my_tweet(twitter_api, my_tweet_text):
+  twitter_api.update_status(my_tweet_text) 
 
 def repeat_tweets_in_case_of_later_deletion(twitter_api, original_tweeter, since_tweet_id, timezone):
   their_tweets = twitter_api.user_timeline(original_tweeter, count=25, since_id=since_tweet_id)
@@ -65,7 +64,7 @@ def repeat_tweets_in_case_of_later_deletion(twitter_api, original_tweeter, since
     their_tweet = twitter_api.get_status(their_tweet.id, tweet_mode='extended')
     my_tweet_text = build_my_tweet(their_tweet, timezone)
     check_off(their_tweet)
-    send_my_tweet(my_tweet_text)
+    send_my_tweet(twitter_api, my_tweet_text)
 
 if __name__ == '__main__':
   heroku_conn = heroku3.from_key(HEROKU_KEY)
