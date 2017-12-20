@@ -5,8 +5,11 @@ import calendar
 import datetime
 import heroku3
 import json
+import logging
 import sys
 import tweepy
+
+LOG = logging.getLogger()
 
 HEROKU_KEY = sys.argv[1]
 HEROKU_APP_NAME = sys.argv[2]
@@ -49,7 +52,7 @@ def check_off(their_tweet):
 
 def send_my_tweet(my_tweet_text):
   # TODO: send via Tweepy API
-  print(my_tweet_text)  
+  LOG.info(my_tweet_text)  
 
 def repeat_tweets_in_case_of_later_deletion(twitter_api, original_tweeter, since_tweet_id):
   their_tweets = twitter_api.user_timeline(original_tweeter, count=25, since_id=since_tweet_id)
