@@ -10,8 +10,6 @@ import requests
 import tweepy
 import heroku3
 
-HEROKU_KEY = sys.argv[1]
-HEROKU_APP_NAME = sys.argv[2]
 TWEET_URL = "https://twitter.com/{username}/status/{tweet_id}"
 
 def get_twitter_api():
@@ -30,12 +28,6 @@ def build_intro(their_username):
   return intro_template.format(**{
       'their_username': their_username
   })
-
-def build_my_tweet(their_tweet):
-  """Generate status text for my tweet and a screenshot of their original tweet"""
-  local_screenshot = get_tweet_screenshot(their_tweet)
-  my_intro = build_intro(their_tweet.user.screen_name)
-  return my_intro, local_screenshot
 
 def get_tweet_screenshot(their_tweet):
   """Generate a screenshot for their original tweet"""
@@ -57,7 +49,6 @@ def check_off(their_tweet):
 def send_my_tweet(my_tweet_text, local_screenshot):
   """Actually tweet with my own text and the screenshot of their original tweet"""
   TWITTER.update_with_media(local_screenshot, status=my_tweet_text)
-  print(my_tweet_text, local_screenshot)
 
 def build_thumbnail_template():
   """Build the thumbnail API endpoint, ready to sub in the URL of the original tweet"""
@@ -84,18 +75,25 @@ def capture_tweets_for_posterity():
       since_id=LATEST_CAPTURED_TWEET)
   their_tweets.reverse() # i.e. put in chronological order
   for their_tweet in their_tweets:
-    their_tweet = TWITTER.get_status(their_tweet.id, tweet_mode='extended')
-    my_tweet_text, local_screenshot = build_my_tweet(their_tweet)
     try:
+      local_screenshot = get_tweet_screenshot(their_tweet)
+      my_tweet_text = build_intro(their_tweet.user.screen_name)
       send_my_tweet(my_tweet_text, local_screenshot)
       check_off(their_tweet)
     finally:
       os.remove(local_screenshot)
 
+def get_app_config():
+  """Load configuration from Heroku"""
+  heroku_conn = heroku3.from_key(HEROKU_KEY)
+  heroku_app = heroku_conn.apps()[HEROKU_APP_NAME]
+  return heroku_app.config()
+
 if __name__ == '__main__':
-  HEROKU_CONN = heroku3.from_key(HEROKU_KEY)
-  HEROKU_APP = HEROKU_CONN.apps()[HEROKU_APP_NAME]
-  HEROKU_CONFIG = HEROKU_APP.config()
+  HEROKU_KEY = sys.argv[1]
+  HEROKU_APP_NAME = sys.argv[2]
+
+  HEROKU_CONFIG = get_app_config()
 
   TWITTER = get_twitter_api()
   ORIGINAL_TWEETER = HEROKU_CONFIG['HELD_TO_ACCOUNT']
